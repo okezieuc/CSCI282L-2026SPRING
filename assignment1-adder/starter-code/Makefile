@@ -1,6 +1,12 @@
 # Makefile for Adder Compiler
 # Replace 'elf64' with 'macho64' on macOS
 
+SNEK_FILES := $(wildcard test/*.snek)
+ASM_FILES := $(patsubst test/%.snek,test/%.s,$(SNEK_FILES))
+RUN_FILES := $(patsubst test/%.snek,test/%.run,$(SNEK_FILES))
+
+.SECONDARY: $(ASM_FILES)
+
 # Pattern rule to compile .snek files to .s assembly files
 test/%.s: test/%.snek src/main.rs
 	cargo run -- $< test/$*.s
@@ -8,9 +14,9 @@ test/%.s: test/%.snek src/main.rs
 # Pattern rule to assemble .s files and link into executables
 # Change -f elf64 to -f macho64 on macOS
 test/%.run: test/%.s runtime/start.rs
-	nasm -f elf64 test/$*.s -o runtime/our_code.o
+	nasm -f macho64 test/$*.s -o runtime/our_code.o
 	ar rcs runtime/libour_code.a runtime/our_code.o
-	rustc -L runtime/ runtime/start.rs -o test/$*.run
+	rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/$*.run
 
 # Clean build artifacts
 clean:
@@ -18,11 +24,21 @@ clean:
 	rm -f test/*.s test/*.run runtime/*.o runtime/*.a
 
 # Run all tests
-test: test/37.run test/add.run test/negate.run test/complex.run
+test: $(RUN_FILES)
 	@echo "Running tests..."
-	@./test/37.run
-	@./test/add.run
-	@./test/negate.run
-	@./test/complex.run
+	@for run_file in $(RUN_FILES); do ./$$run_file; done
 
-.PHONY: clean test
+test-verbose:
+	@for snek_file in $(SNEK_FILES); do \
+		base=$${snek_file%.snek}; \
+		echo "===== $$snek_file ====="; \
+		cat $$snek_file; \
+		$(MAKE) -B $$base.run; \
+		echo "===== $$base.s ====="; \
+		cat $$base.s; \
+		echo "===== $$base.run ====="; \
+		./$$base.run; \
+		echo ""; \
+	done
+
+.PHONY: clean test test-verbose

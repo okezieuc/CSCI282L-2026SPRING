@@ -1,0 +1,164 @@
+
+===== test/add1_and_negate.snek =====
+(negate (add1 -68))
+cargo run -- test/add1_and_negate.snek test/add1_and_negate.s
+nasm -f macho64 test/add1_and_negate.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/add1_and_negate.run
+===== test/add1_and_negate.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, -68
+add rax, 1
+imul rax, -1
+  ret
+===== test/add1_and_negate.run =====
+67
+
+===== test/add1_and_sub1.snek =====
+(sub1 (add1 67))
+cargo run -- test/add1_and_sub1.snek test/add1_and_sub1.s
+nasm -f macho64 test/add1_and_sub1.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/add1_and_sub1.run
+===== test/add1_and_sub1.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 67
+add rax, 1
+sub rax, 1
+  ret
+===== test/add1_and_sub1.run =====
+67
+
+===== test/add1_twice.snek =====
+(add1 (add1 66))
+cargo run -- test/add1_twice.snek test/add1_twice.s
+nasm -f macho64 test/add1_twice.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/add1_twice.run
+===== test/add1_twice.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 66
+add rax, 1
+add rax, 1
+  ret
+===== test/add1_twice.run =====
+68
+
+===== test/add1.snek =====
+(add1 5)
+cargo run -- test/add1.snek test/add1.s
+nasm -f macho64 test/add1.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/add1.run
+===== test/add1.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 5
+add rax, 1
+  ret
+===== test/add1.run =====
+6
+
+===== test/example.snek =====
+42
+cargo run -- test/example.snek test/example.s
+nasm -f macho64 test/example.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/example.run
+===== test/example.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 42
+  ret
+===== test/example.run =====
+42
+
+===== test/negate_and_add1.snek =====
+(add1 (negate -66))
+cargo run -- test/negate_and_add1.snek test/negate_and_add1.s
+nasm -f macho64 test/negate_and_add1.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/negate_and_add1.run
+===== test/negate_and_add1.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, -66
+imul rax, -1
+add rax, 1
+  ret
+===== test/negate_and_add1.run =====
+67
+
+===== test/negate_twice.snek =====
+(negate (negate 5))
+cargo run -- test/negate_twice.snek test/negate_twice.s
+nasm -f macho64 test/negate_twice.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/negate_twice.run
+===== test/negate_twice.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 5
+imul rax, -1
+imul rax, -1
+  ret
+===== test/negate_twice.run =====
+5
+
+===== test/negate.snek =====
+(negate 7)
+cargo run -- test/negate.snek test/negate.s
+nasm -f macho64 test/negate.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/negate.run
+===== test/negate.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 7
+imul rax, -1
+  ret
+===== test/negate.run =====
+-7
+
+===== test/num.snek =====
+37
+cargo run -- test/num.snek test/num.s
+nasm -f macho64 test/num.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/num.run
+===== test/num.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 37
+  ret
+===== test/num.run =====
+37
+
+===== test/sub1.snek =====
+(sub1 68)
+cargo run -- test/sub1.snek test/sub1.s
+nasm -f macho64 test/sub1.s -o runtime/our_code.o
+ar rcs runtime/libour_code.a runtime/our_code.o
+rustc --target x86_64-apple-darwin -L runtime/ runtime/start.rs -o test/sub1.run
+===== test/sub1.s =====
+section .text
+global our_code_starts_here
+our_code_starts_here:
+  mov rax, 68
+sub rax, 1
+  ret
+===== test/sub1.run =====
+67
+

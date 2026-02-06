@@ -10,14 +10,12 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 
-// TODO: Define the Expr enum for your Abstract Syntax Tree
-// You need variants for: Num, Add1, Sub1, and Negate
-// 
-// Hint: Recursive types in Rust need Box<T>
-// Example: Add1(Box<Expr>)
 #[derive(Debug)]
 enum Expr {
-    // Your code here
+    Num(i32),
+    Add1(Box<Expr>),
+    Sub1(Box<Expr>),
+    Negate(Box<Expr>)
 }
 
 /// Parse an S-expression into our Expr AST
@@ -26,14 +24,19 @@ enum Expr {
 /// our internal AST representation: Expr::Add1(Box::new(Expr::Num(5)))
 fn parse_expr(s: &Sexp) -> Expr {
     match s {
-        // TODO: Handle number atoms
-        // Hint: Sexp::Atom(I(n)) => Expr::Num(...)
-        //       You'll need i32::try_from(*n).unwrap()
-        
-        // TODO: Handle list expressions (operations)
-        // Hint: Sexp::List(vec) => match &vec[..]
-        //       For add1: [Sexp::Atom(S(op)), e] if op == "add1" => ...
-        
+        Sexp::Atom(I(n)) => Expr::Num(i32::try_from(*n).unwrap()),
+        Sexp::List(vec) => {
+            match &vec[..] {
+                [Sexp::Atom(S(op)), e] if op == "add1" =>
+                    Expr::Add1(Box::new(parse_expr(e))),
+                [Sexp::Atom(S(op)), e] if op == "sub1" =>
+                    Expr::Sub1(Box::new(parse_expr(e))),
+                [Sexp::Atom(S(op)), e] if op == "negate" =>
+                    Expr::Negate(Box::new(parse_expr(e))),
+                _ => panic!("Invalid expression"),
+            }
+        }
+
         _ => panic!("Invalid expression: {:?}", s),
     }
 }
@@ -48,22 +51,10 @@ fn parse_expr(s: &Sexp) -> Expr {
 ///   Add1(Num(5)) should generate: "mov rax, 5\nadd rax, 1"
 fn compile_expr(e: &Expr) -> String {
     match e {
-        // TODO: For Num(n), generate a mov instruction
-        // Format: "mov rax, {}"
-        
-        // TODO: For Add1(subexpr):
-        //   1. Compile the subexpression
-        //   2. Add an instruction to increment rax
-        // Hint: compile_expr(subexpr) + "\nadd rax, 1"
-        
-        // TODO: For Sub1(subexpr):
-        //   1. Compile the subexpression
-        //   2. Add an instruction to decrement rax
-        
-        // TODO: For Negate(subexpr):
-        //   1. Compile the subexpression
-        //   2. Add an instruction to negate rax
-        // Hint: Use "imul rax, -1" to multiply by -1
+        Expr::Num(n) => format!("mov rax, {}", *n),
+        Expr::Add1(subexpr) => compile_expr(subexpr) + "\nadd rax, 1",
+        Expr::Sub1(subexpr) => compile_expr(subexpr) + "\nsub rax, 1",
+        Expr::Negate(subexpr) => compile_expr(subexpr) + "\nimul rax, -1",
     }
 }
 
