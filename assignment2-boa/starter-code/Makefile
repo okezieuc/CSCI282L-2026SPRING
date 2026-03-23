@@ -1,4 +1,4 @@
-# Makefile for Adder Compiler
+# Makefile for Boa Compiler
 # Replace 'elf64' with 'macho64' on macOS
 
 # Pattern rule to compile .snek files to .s assembly files
@@ -18,11 +18,13 @@ clean:
 	rm -f test/*.s test/*.run runtime/*.o runtime/*.a
 
 # Run all tests
-test: test/37.run test/add.run test/negate.run test/complex.run
+test: test/simple.run test/add.run test/binop.run test/let_simple.run test/let_multi.run test/nested.run
 	@echo "Running tests..."
-	@./test/37.run
-	@./test/add.run
-	@./test/negate.run
-	@./test/complex.run
+	@echo -n "simple (expected 42): " && ./test/simple.run
+	@echo -n "add (expected 6): " && ./test/add.run
+	@echo -n "binop (expected 9): " && ./test/binop.run
+	@echo -n "let_simple (expected 10): " && ./test/let_simple.run
+	@echo -n "let_multi (expected 11): " && ./test/let_multi.run
+	@echo -n "nested (expected 25): " && ./test/nested.run
 
 .PHONY: clean test
