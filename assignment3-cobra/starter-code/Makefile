@@ -1,6 +1,9 @@
 # Makefile for Adder Compiler
 # Replace 'elf64' with 'macho64' on macOS
 
+SNEK_TESTS := $(filter-out test/example.snek test/add_overflow_error.snek,$(wildcard test/*.snek))
+RUN_TESTS := $(patsubst %.snek,%.run,$(SNEK_TESTS))
+
 # Pattern rule to compile .snek files to .s assembly files
 test/%.s: test/%.snek src/main.rs
 	cargo run -- $< test/$*.s
@@ -18,11 +21,8 @@ clean:
 	rm -f test/*.s test/*.run runtime/*.o runtime/*.a
 
 # Run all tests
-test: test/37.run test/add.run test/negate.run test/complex.run
-	@echo "Running tests..."
-	@./test/37.run
-	@./test/add.run
-	@./test/negate.run
-	@./test/complex.run
+test: $(RUN_TESTS)
+	@echo "Built test executables:"
+	@for run_file in $(RUN_TESTS); do echo "$$run_file"; done
 
 .PHONY: clean test
