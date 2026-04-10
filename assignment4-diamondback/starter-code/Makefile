@@ -1,6 +1,9 @@
 # Makefile for Adder Compiler
 # Replace 'elf64' with 'macho64' on macOS
 
+SNEK_TESTS := $(filter-out test/example.snek,$(wildcard test/*.snek))
+RUN_TESTS := $(patsubst %.snek,%.run,$(SNEK_TESTS))
+
 # Pattern rule to compile .snek files to .s assembly files
 test/%.s: test/%.snek src/main.rs
 	cargo run -- $< test/$*.s
@@ -17,12 +20,16 @@ clean:
 	cargo clean
 	rm -f test/*.s test/*.run runtime/*.o runtime/*.a
 
-# Run all tests
-test: test/37.run test/add.run test/negate.run test/complex.run
-	@echo "Running tests..."
-	@./test/37.run
-	@./test/add.run
-	@./test/negate.run
-	@./test/complex.run
+# Build all .snek programs in test/
+build-tests: $(RUN_TESTS)
+	@echo "Built test executables:"
+	@for run_file in $(RUN_TESTS); do echo "$$run_file"; done
 
-.PHONY: clean test
+# Run the Rust test suite used by the ompiler
+cargo-test:
+	cargo test
+
+# Do both: build the sample/test programs and run cargo tests
+test: build-tests cargo-test
+
+.PHONY: clean build-tests cargo-test test

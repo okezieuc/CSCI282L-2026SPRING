@@ -1,0 +1,11 @@
+(fun (is-even n)
+  (if (= n 0)
+      true
+      (is-odd (- n 1))))
+
+(fun (is-odd n)
+  (if (= n 0)
+      false
+      (is-even (- n 1))))
+
+(is-even 12)
